@@ -22,9 +22,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
                         $to_cache = json_encode([
                             'id' => time(),
                             'type' => $_POST['alert_type'],
-                            'text' => htmlentities($_POST['alert_text'])
+                            'text' => $_POST['alert_text']
                         ]);
-                        $ttl = isset($_POST['alert_ttl']) ? (int)$_POST['alert_ttl'] : ALERT_DEFAULT_TTL;
+                        $ttl = isset($_POST['alert_ttl']) ? (int) $_POST['alert_ttl'] : ALERT_DEFAULT_TTL;
                         $redis->set($cache_key, $to_cache, $ttl);
 
                         $response = ['status' => 'success'];
@@ -60,6 +60,10 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 'status' => 'success',
                 'alert' => $cached
             ];
+
+            if (isJamInternal()) {
+                $response['alert']->ttl = $redis->ttl($cache_key);
+            }
         } else {
             $http_status = '404 Not Found';
             $response['message'] = 'There is currently no ongoing alert';

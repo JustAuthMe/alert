@@ -1,2 +1,3 @@
 config.dist.php
 .idea/
+/vendor/
